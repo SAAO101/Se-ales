@@ -74,6 +74,28 @@ def save_audio_to_buffer(audio_signal, sample_rate):
     wav.write(buffer, sample_rate, normalized_signal)
     return buffer
 
+def plot_spectrum(signal, fs, ax, title):
+    """Función auxiliar para graficar el espectro de una señal"""
+    n = len(signal)
+    freqs = np.fft.fftfreq(n, 1/fs)
+    freqs = np.fft.fftshift(freqs)
+    
+    # Calcular el espectro
+    spectrum = np.fft.fft(signal)
+    spectrum = np.fft.fftshift(spectrum)
+    magnitude = np.abs(spectrum)
+    
+    # Normalizar la magnitud
+    magnitude = magnitude / np.max(magnitude)
+    
+    # Graficar solo las frecuencias positivas
+    positive_freq_mask = freqs >= 0
+    ax.plot(freqs[positive_freq_mask], magnitude[positive_freq_mask])
+    ax.set_title(title)
+    ax.set_xlabel('Frecuencia (Hz)')
+    ax.set_ylabel('Magnitud Normalizada')
+    ax.grid(True)
+
 def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     # Load audio
     x_t, fs = librosa.load(audio_file_path)
@@ -91,24 +113,45 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     # Filtering
     x_filt, fpb, f = apply_lowpass_filter(x_prima, fs, cutoff_freq)
     
-    # Plot results
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 8))
+    # Crear figura para señales temporales
+    fig1, axes1 = plt.subplots(4, 1, figsize=(12, 12))
     
-    ax1.plot(t, x_t)
-    ax1.set_title("Señal Original")
-    ax1.grid(True)
+    # Graficar señales en dominio del tiempo
+    axes1[0].plot(t, x_t)
+    axes1[0].set_title("Señal Original")
+    axes1[0].grid(True)
     
-    ax2.plot(t, y_mod)
-    ax2.set_title("Señal Modulada")
-    ax2.grid(True)
+    axes1[1].plot(t, carrier)
+    axes1[1].set_title("Señal Portadora")
+    axes1[1].grid(True)
     
-    ax3.plot(t, np.real(x_filt))
-    ax3.set_title("Señal Demodulada")
-    ax3.grid(True)
+    axes1[2].plot(t, y_mod)
+    axes1[2].set_title("Señal Modulada")
+    axes1[2].grid(True)
+    
+    axes1[3].plot(t, np.real(x_filt))
+    axes1[3].set_title("Señal Demodulada")
+    axes1[3].grid(True)
     
     plt.tight_layout()
-    st.pyplot(fig)
+    st.write("### Señales en el Dominio del Tiempo")
+    st.pyplot(fig1)
     
+    # Crear figura para espectros
+    fig2, axes2 = plt.subplots(4, 1, figsize=(12, 12))
+    
+    # Graficar espectros
+    plot_spectrum(x_t, fs, axes2[0], "Espectro de la Señal Original")
+    plot_spectrum(carrier, fs, axes2[1], "Espectro de la Señal Portadora")
+    plot_spectrum(y_mod, fs, axes2[2], "Espectro de la Señal Modulada")
+    plot_spectrum(np.real(x_filt), fs, axes2[3], "Espectro de la Señal Demodulada")
+    
+    plt.tight_layout()
+    st.write("### Señales en el Dominio de la Frecuencia")
+    st.pyplot(fig2)
+    
+    # Reproducción de audio
+    st.write("### Reproducción de Audio")
     # Convertir señales a formato reproducible
     original_audio = save_audio_to_buffer(x_t, fs)
     modulated_audio = save_audio_to_buffer(y_mod, fs)
@@ -136,7 +179,6 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     st.write("Frecuencia de corte:", cutoff_freq, "Hz")
     
     return np.real(x_filt)
-
 def analyze_custom_signal(time_points, num_harmonics):
     """
     Analyze the custom piecewise linear signal
