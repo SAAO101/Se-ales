@@ -7,6 +7,7 @@ import librosa
 import os
 import io
 import scipy.io.wavfile as wav
+import tempfile
 st.set_page_config(page_title="LAB3")
 
 SAMPLING_DELTA = 0.0001
@@ -346,27 +347,40 @@ def main():
     
     if choice == "AM Modulation":
         try:
-            file_path = "audio.wav"  # Update with your audio file path
-            carrier_freq = st.slider(
-                "Carrier frequency (Hz)",
-                min_value=500,
-                max_value=5000,
-                value=2000,
-                step=100
-            )
-            cutoff_freq = st.slider(
-                "Cutoff frequency (Hz)",
-                min_value=100,
-                max_value=1000,
-                value=700,
-                step=50
-            )
-            perform_am_modulation(file_path, carrier_freq, cutoff_freq)
+            # File uploader
+            uploaded_file = st.file_uploader("Upload audio file", type=['wav', 'mp3'])
             
-        except FileNotFoundError:
-            st.error("Error: Audio file not found")
+            if uploaded_file is not None:
+                # Guardar temporalmente el archivo
+                with open("temp_audio.wav", "wb") as f:
+                    f.write(uploaded_file.getvalue())
+                
+                carrier_freq = st.slider(
+                    "Carrier frequency (Hz)",
+                    min_value=500,
+                    max_value=5000,
+                    value=2000,
+                    step=100
+                )
+                cutoff_freq = st.slider(
+                    "Cutoff frequency (Hz)",
+                    min_value=100,
+                    max_value=1000,
+                    value=700,
+                    step=50
+                )
+                perform_am_modulation("temp_audio.wav", carrier_freq, cutoff_freq)
+                
+                # Eliminar el archivo temporal
+                if os.path.exists("temp_audio.wav"):
+                    os.remove("temp_audio.wav")
+            else:
+                st.info("Please upload an audio file to begin")
+                
         except Exception as e:
             st.error(f"Error processing audio: {str(e)}")
+            if os.path.exists("temp_audio.wav"):
+                os.remove("temp_audio.wav")
             
     elif choice == "Fourier Series Analysis":
         run_point5()
