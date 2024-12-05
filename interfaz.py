@@ -188,30 +188,13 @@ def analyze_custom_signal(time_points, num_harmonics):
     Analyze the custom piecewise linear signal:
     x(t) = 1 + 4t/T  for -T/2 < t ≤ 0
     x(t) = 1 - 4t/T  for 0 ≤ t < T/2
-    x(t) = -(1 + 4t/T)  for -T/2 < t ≤ 0 (parte negativa)
-    x(t) = -(1 - 4t/T)  for 0 ≤ t < T/2 (parte negativa)
     """
     T = 2  # Periodo fundamental
     
-    # Generate the piecewise signal with both positive and negative parts
-    def signal_function(t):
-        # Para la parte positiva
-        if t < 0:
-            return 1 + 4*t/T
-        else:
-            return 1 - 4*t/T
-    
-    def negative_signal_function(t):
-        # Para la parte negativa
-        if t < 0:
-            return -(1 + 4*t/T)
-        else:
-            return -(1 - 4*t/T)
-    
-    signal = np.piecewise(time_points,
+    # Generate the piecewise signal
+    signal = np.piecewise(time_points, 
                          [time_points < 0, time_points >= 0],
-                         [lambda t: signal_function(t) + negative_signal_function(t),
-                          lambda t: signal_function(t) + negative_signal_function(t)])
+                         [lambda t: 1 + 4*t/T, lambda t: 1 - 4*t/T])
     
     # Initialize coefficients
     a0 = 0
@@ -223,7 +206,8 @@ def analyze_custom_signal(time_points, num_harmonics):
     t_sample = np.linspace(-T/2, T/2, 1000)
     
     def integrand_a0(t):
-        return signal_function(t) + negative_signal_function(t)
+        return np.piecewise(t, [t < 0, t >= 0],
+                          [lambda t: 1 + 4*t/T, lambda t: 1 - 4*t/T])
     
     a0 = 2/T * np.trapz([integrand_a0(t) for t in t_sample], t_sample)
     
