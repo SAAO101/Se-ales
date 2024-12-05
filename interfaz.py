@@ -75,7 +75,7 @@ def save_audio_to_buffer(audio_signal, sample_rate):
     return buffer
 
 def plot_spectrum(signal, fs, ax, title):
-    """Función auxiliar para graficar el espectro de una señal"""
+    """Función auxiliar para graficar el espectro completo de una señal"""
     n = len(signal)
     freqs = np.fft.fftfreq(n, 1/fs)
     freqs = np.fft.fftshift(freqs)
@@ -88,9 +88,8 @@ def plot_spectrum(signal, fs, ax, title):
     # Normalizar la magnitud
     magnitude = magnitude / np.max(magnitude)
     
-    # Graficar solo las frecuencias positivas
-    positive_freq_mask = freqs >= 0
-    ax.plot(freqs[positive_freq_mask], magnitude[positive_freq_mask])
+    # Graficar el espectro completo
+    ax.plot(freqs, magnitude)
     ax.set_title(title)
     ax.set_xlabel('Frecuencia (Hz)')
     ax.set_ylabel('Magnitud Normalizada')
@@ -102,6 +101,11 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     t = np.arange(len(x_t)) / fs
     
     # Generate carrier
+    # Crear tiempo específico para la portadora
+    t_carrier = np.arange(0, 0.002, 1/fs)
+    carrier_zoomed = np.cos(2*np.pi*carrier_freq*t_carrier)
+    
+    # Portadora completa para modulación
     carrier = np.cos(2*np.pi*carrier_freq*t)
     
     # Modulation
@@ -121,8 +125,8 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     axes1[0].set_title("Señal Original")
     axes1[0].grid(True)
     
-    axes1[1].plot(t, carrier)
-    axes1[1].set_title("Señal Portadora")
+    axes1[1].plot(t_carrier, carrier_zoomed)
+    axes1[1].set_title("Señal Portadora (0-0.002s)")
     axes1[1].grid(True)
     
     axes1[2].plot(t, y_mod)
@@ -142,7 +146,7 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     
     # Graficar espectros
     plot_spectrum(x_t, fs, axes2[0], "Espectro de la Señal Original")
-    plot_spectrum(carrier, fs, axes2[1], "Espectro de la Señal Portadora")
+    plot_spectrum(carrier_zoomed, fs, axes2[1], "Espectro de la Señal Portadora")
     plot_spectrum(y_mod, fs, axes2[2], "Espectro de la Señal Modulada")
     plot_spectrum(np.real(x_filt), fs, axes2[3], "Espectro de la Señal Demodulada")
     
