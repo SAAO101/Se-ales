@@ -42,6 +42,14 @@ def compute_fourier_transform(signal):
     X_fcorr_mag = np.abs(X_fcorr)
     return X_fcorr_mag, X_fcorr
 
+def play_audio(signal, fs):
+    """Reproduce el audio usando sounddevice"""
+    try:
+        sd.play(signal, fs)
+        sd.wait()  # Espera hasta que termine la reproducción
+    except Exception as e:
+        st.error(f"Error reproduciendo audio: {str(e)}")
+
 def apply_lowpass_filter(signal, fs, cutoff_freq):
     X_f = np.fft.fft(signal)
     X_f_cent = np.fft.fftshift(X_f)
@@ -90,6 +98,21 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     
     plt.tight_layout()
     st.pyplot(fig)
+    
+    # Agregar botones para reproducir cada señal
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("Play Original Signal"):
+            play_audio(x_t, fs)
+    
+    with col2:
+        if st.button("Play Modulated Signal"):
+            play_audio(y_mod, fs)
+    
+    with col3:
+        if st.button("Play Demodulated Signal"):
+            play_audio(np.real(x_filt), fs)
     
     return np.real(x_filt)
 
@@ -291,94 +314,6 @@ def run_point5():
         plt.grid(True)
     
     st.pyplot(fig)
-
-def main():
-    st.title("Signal Processing Lab")
-    st.subheader("Juan Polo C   Jesus Carmona   Samir Albor")
-    
-    choice = st.selectbox(
-        "Select analysis type",
-        ["None", "AM Modulation", "Fourier Series Analysis"]
-    )
-    
-    if choice == "AM Modulation":
-        try:
-            file_path = "audio.wav"  # Update with your audio file path
-            carrier_freq = st.slider(
-                "Carrier frequency (Hz)",
-                min_value=500,
-                max_value=5000,
-                value=2000,
-                step=100
-            )
-            cutoff_freq = st.slider(
-                "Cutoff frequency (Hz)",
-                min_value=100,
-                max_value=1000,
-                value=700,
-                step=50
-            )
-def play_audio(signal, fs):
-    """Reproduce el audio usando sounddevice"""
-    try:
-        sd.play(signal, fs)
-        sd.wait()  # Espera hasta que termine la reproducción
-    except Exception as e:
-        st.error(f"Error reproduciendo audio: {str(e)}")
-
-def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
-    # Load audio
-    x_t, fs = librosa.load(audio_file_path)
-    t = np.arange(len(x_t)) / fs
-    
-    # Generate carrier
-    carrier = np.cos(2*np.pi*carrier_freq*t)
-    
-    # Modulation
-    y_mod = x_t * carrier
-    
-    # Demodulation
-    x_prima = y_mod * carrier
-    
-    # Filtering
-    x_filt, fpb, f = apply_lowpass_filter(x_prima, fs, cutoff_freq)
-    
-    # Plot results
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 8))
-    
-    ax1.plot(t, x_t)
-    ax1.set_title("Original Signal")
-    ax1.grid(True)
-    
-    ax2.plot(t, y_mod)
-    ax2.set_title("Modulated Signal")
-    ax2.grid(True)
-    
-    ax3.plot(t, np.real(x_filt))
-    ax3.set_title("Demodulated Signal")
-    ax3.grid(True)
-    
-    plt.tight_layout()
-    st.pyplot(fig)
-    
-    # Agregar botones para reproducir cada señal
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        if st.button("Play Original Signal"):
-            play_audio(x_t, fs)
-    
-    with col2:
-        if st.button("Play Modulated Signal"):
-            play_audio(y_mod, fs)
-    
-    with col3:
-        if st.button("Play Demodulated Signal"):
-            play_audio(np.real(x_filt), fs)
-    
-    return np.real(x_filt)
-
-# ... [resto del código se mantiene igual]
 
 def main():
     st.title("Signal Processing Lab")
