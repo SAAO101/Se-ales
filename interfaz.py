@@ -434,7 +434,7 @@ def main():
 def run_point5():
     signal_choice = st.selectbox(
         "Elija el tipo de señal",
-        ["Señal por tramos", "Diente de sierra", "Parabólica", "Nueva señal por tramos"]
+        ["Señal 3.6.1", "Señal 3.6.2", "Señal 3.6.3", "Señal 3.6.4"]
     )
     
     vis_choice = st.selectbox(
@@ -450,19 +450,19 @@ def run_point5():
         step=1
     )
     
-    if signal_choice == "Señal por tramos":
+    if signal_choice == "Señal 3.6.1":
         time_points = np.linspace(-1, 1, 1000)
         original, reconstructed, an, bn, a0 = analyze_custom_signal(
             time_points, num_harmonics)
-    elif signal_choice == "Diente de sierra":
+    elif signal_choice == "Señal 3.6.2":
         time_points = np.linspace(-2*np.pi, 2*np.pi, 1000)
         original, reconstructed, an, bn, a0 = analyze_sawtooth_signal(
             time_points, num_harmonics)
-    elif signal_choice == "Parabólica":
+    elif signal_choice == "Señal 3.6.3":
         time_points = np.linspace(-3*np.pi, 3*np.pi, 1000)
         original, reconstructed, an, bn, a0 = analyze_parabolic_signal(
             time_points, num_harmonics)
-    else:  # Nueva señal por tramos
+    else:  # Señal 3.6.4
         time_points = np.linspace(-2, 2, 1000)
         original, reconstructed, an, bn, a0 = analyze_piecewise_new(
             time_points, num_harmonics)
