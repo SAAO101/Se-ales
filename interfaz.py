@@ -488,10 +488,10 @@ def run_point5():
                  for x in np.arange(min(time_points), max(time_points) + np.pi, np.pi)]
             )
     else:
-        plt.stem([0], [a0], 'b', label='Componente DC')
+        plt.stem([0], [a0], 'b')
         harmonics = np.arange(1, num_harmonics)
-        plt.stem(harmonics, np.abs(an[1:]), 'r', label='|an| (Coseno)')
-        plt.stem(harmonics, np.abs(bn[1:]), 'g', label='|bn| (Seno)')
+        plt.stem(harmonics, np.abs(an[1:]), 'r')
+        plt.stem(harmonics, np.abs(bn[1:]), 'g')
         plt.title('Coeficientes de las Series de Fourier')
         plt.xlabel('n (Número de Armónico)')
         plt.ylabel('Magnitud del Coeficiente')
