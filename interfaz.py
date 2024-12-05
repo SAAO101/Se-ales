@@ -288,19 +288,19 @@ def run_point5():
         step=1
     )
     
-    if signal_choice == "Custom piecewise":
+    if signal_choice == "Señal 3.6.1":
         time_points = np.linspace(-1, 1, 1000)
         original, reconstructed, an, bn, a0 = analyze_custom_signal(
             time_points, num_harmonics)
-    elif signal_choice == "Sawtooth":
+    elif signal_choice == "Señal 3.6.2":
         time_points = np.linspace(-2*np.pi, 2*np.pi, 1000)
         original, reconstructed, an, bn, a0 = analyze_sawtooth_signal(
             time_points, num_harmonics)
-    elif signal_choice == "Parabolic":
+    elif signal_choice == "Señal 3.6.3":
         time_points = np.linspace(-3*np.pi, 3*np.pi, 1000)
         original, reconstructed, an, bn, a0 = analyze_parabolic_signal(
             time_points, num_harmonics)
-    else:  # New piecewise
+    else:  # Señal 3.6.4
         time_points = np.linspace(-2, 2, 1000)
         original, reconstructed, an, bn, a0 = analyze_piecewise_new(
             time_points, num_harmonics)
@@ -337,15 +337,15 @@ def run_point5():
     st.pyplot(fig)
 
 def main():
-    st.title("Signal Processing Lab")
+    st.title("Laboratorio Final")
     st.subheader("Juan Polo C   Jesus Carmona   Samir Albor")
     
     choice = st.selectbox(
         "Select analysis type",
-        ["None", "AM Modulation", "Fourier Series Analysis"]
+        ["Nada", "Modulacion AM", "Analisis de Series de Fourier"]
     )
     
-    if choice == "AM Modulation":
+    if choice == "Modulacion AM":
         try:
             # File uploader
             uploaded_file = st.file_uploader("Upload audio file", type=['wav', 'mp3'])
@@ -382,7 +382,7 @@ def main():
             if os.path.exists("temp_audio.wav"):
                 os.remove("temp_audio.wav")
             
-    elif choice == "Fourier Series Analysis":
+    elif choice == "Analisis de Series de Fourier":
         run_point5()
 
 if __name__ == "__main__":
