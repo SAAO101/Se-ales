@@ -4,8 +4,9 @@ import numpy as np
 from scipy import signal
 from PIL import Image
 import librosa
-import sounddevice as sd
 import os
+import io
+import scipy.io.wavfile as wav
 st.set_page_config(page_title="LAB3")
 
 SAMPLING_DELTA = 0.0001
@@ -64,6 +65,14 @@ def apply_lowpass_filter(signal, fs, cutoff_freq):
     
     return np.real(x_t_filt), fpb, f
 
+def save_audio_to_buffer(audio_signal, sample_rate):
+    """Convierte la señal de audio a un buffer que puede ser reproducido por st.audio"""
+    # Normalizar la señal entre -1 y 1
+    normalized_signal = np.int16(audio_signal * 32767)
+    buffer = io.BytesIO()
+    wav.write(buffer, sample_rate, normalized_signal)
+    return buffer
+
 def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     # Load audio
     x_t, fs = librosa.load(audio_file_path)
@@ -99,20 +108,31 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     plt.tight_layout()
     st.pyplot(fig)
     
-    # Agregar botones para reproducir cada señal
+    # Convertir señales a formato reproducible
+    original_audio = save_audio_to_buffer(x_t, fs)
+    modulated_audio = save_audio_to_buffer(y_mod, fs)
+    demodulated_audio = save_audio_to_buffer(np.real(x_filt), fs)
+    
+    # Crear columnas para los controles de audio
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("Play Original Signal"):
-            play_audio(x_t, fs)
+        st.write("Original Signal")
+        st.audio(original_audio, format='audio/wav')
     
     with col2:
-        if st.button("Play Modulated Signal"):
-            play_audio(y_mod, fs)
+        st.write("Modulated Signal")
+        st.audio(modulated_audio, format='audio/wav')
     
     with col3:
-        if st.button("Play Demodulated Signal"):
-            play_audio(np.real(x_filt), fs)
+        st.write("Demodulated Signal")
+        st.audio(demodulated_audio, format='audio/wav')
+    
+    # Mostrar información adicional
+    st.write("### Signal Information")
+    st.write("Original signal duration:", len(x_t)/fs, "seconds")
+    st.write("Carrier frequency:", carrier_freq, "Hz")
+    st.write("Cutoff frequency:", cutoff_freq, "Hz")
     
     return np.real(x_filt)
 
