@@ -95,15 +95,15 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 8))
     
     ax1.plot(t, x_t)
-    ax1.set_title("Original Signal")
+    ax1.set_title("Señal Original")
     ax1.grid(True)
     
     ax2.plot(t, y_mod)
-    ax2.set_title("Modulated Signal")
+    ax2.set_title("Señal Modulada")
     ax2.grid(True)
     
     ax3.plot(t, np.real(x_filt))
-    ax3.set_title("Demodulated Signal")
+    ax3.set_title("Señal Demodulada")
     ax3.grid(True)
     
     plt.tight_layout()
@@ -118,22 +118,22 @@ def perform_am_modulation(audio_file_path, carrier_freq, cutoff_freq):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.write("Original Signal")
+        st.write("Señal Original")
         st.audio(original_audio, format='audio/wav')
     
     with col2:
-        st.write("Modulated Signal")
+        st.write("Señal Modulada")
         st.audio(modulated_audio, format='audio/wav')
     
     with col3:
-        st.write("Demodulated Signal")
+        st.write("Señal Demodulada")
         st.audio(demodulated_audio, format='audio/wav')
     
     # Mostrar información adicional
-    st.write("### Signal Information")
-    st.write("Original signal duration:", len(x_t)/fs, "seconds")
-    st.write("Carrier frequency:", carrier_freq, "Hz")
-    st.write("Cutoff frequency:", cutoff_freq, "Hz")
+    st.write("### Información de la Señal")
+    st.write("Duración de la señal original:", len(x_t)/fs, "segundos")
+    st.write("Frecuencia de portadora:", carrier_freq, "Hz")
+    st.write("Frecuencia de corte:", cutoff_freq, "Hz")
     
     return np.real(x_filt)
 
@@ -337,18 +337,18 @@ def run_point5():
     st.pyplot(fig)
 
 def main():
-    st.title("Laboratorio Final")
+    st.title("Laboratorio de Procesamiento de Señales")
     st.subheader("Juan Polo C   Jesus Carmona   Samir Albor")
     
     choice = st.selectbox(
-        "Select analysis type",
-        ["Nada", "Modulacion AM", "Analisis de Series de Fourier"]
+        "Seleccione el tipo de análisis",
+        ["Ninguno", "Modulación AM", "Análisis de Series de Fourier"]
     )
     
-    if choice == "Modulacion AM":
+    if choice == "Modulación AM":
         try:
-            # File uploader
-            uploaded_file = st.file_uploader("Upload audio file", type=['wav', 'mp3'])
+            # File uploader en español
+            uploaded_file = st.file_uploader("Subir archivo de audio", type=['wav', 'mp3'])
             
             if uploaded_file is not None:
                 # Guardar temporalmente el archivo
@@ -356,14 +356,14 @@ def main():
                     f.write(uploaded_file.getvalue())
                 
                 carrier_freq = st.slider(
-                    "Carrier frequency (Hz)",
+                    "Frecuencia de portadora (Hz)",
                     min_value=500,
                     max_value=5000,
                     value=2000,
                     step=100
                 )
                 cutoff_freq = st.slider(
-                    "Cutoff frequency (Hz)",
+                    "Frecuencia de corte (Hz)",
                     min_value=100,
                     max_value=1000,
                     value=700,
@@ -375,15 +375,82 @@ def main():
                 if os.path.exists("temp_audio.wav"):
                     os.remove("temp_audio.wav")
             else:
-                st.info("Please upload an audio file to begin")
+                st.info("Por favor, suba un archivo de audio para comenzar")
                 
         except Exception as e:
-            st.error(f"Error processing audio: {str(e)}")
+            st.error(f"Error al procesar el audio: {str(e)}")
             if os.path.exists("temp_audio.wav"):
                 os.remove("temp_audio.wav")
             
-    elif choice == "Analisis de Series de Fourier":
+    elif choice == "Análisis de Series de Fourier":
         run_point5()
+
+def run_point5():
+    signal_choice = st.selectbox(
+        "Elija el tipo de señal",
+        ["Señal por tramos", "Diente de sierra", "Parabólica", "Nueva señal por tramos"]
+    )
+    
+    vis_choice = st.selectbox(
+        "Elija el tipo de visualización",
+        ["Comparación de señales", "Coeficientes de Fourier"]
+    )
+    
+    num_harmonics = st.slider(
+        "Número de armónicos",
+        min_value=1,
+        max_value=20,
+        value=5,
+        step=1
+    )
+    
+    if signal_choice == "Señal por tramos":
+        time_points = np.linspace(-1, 1, 1000)
+        original, reconstructed, an, bn, a0 = analyze_custom_signal(
+            time_points, num_harmonics)
+    elif signal_choice == "Diente de sierra":
+        time_points = np.linspace(-2*np.pi, 2*np.pi, 1000)
+        original, reconstructed, an, bn, a0 = analyze_sawtooth_signal(
+            time_points, num_harmonics)
+    elif signal_choice == "Parabólica":
+        time_points = np.linspace(-3*np.pi, 3*np.pi, 1000)
+        original, reconstructed, an, bn, a0 = analyze_parabolic_signal(
+            time_points, num_harmonics)
+    else:  # Nueva señal por tramos
+        time_points = np.linspace(-2, 2, 1000)
+        original, reconstructed, an, bn, a0 = analyze_piecewise_new(
+            time_points, num_harmonics)
+
+    fig = plt.figure(figsize=(12, 6))
+    
+    if vis_choice == "Comparación de señales":
+        plt.plot(time_points, original, 'b-', label='Original', linewidth=2)
+        plt.plot(time_points, reconstructed, 'r--', 
+                label=f'Reconstruida ({num_harmonics} armónicos)')
+        plt.title('Señal Original vs Reconstruida')
+        plt.xlabel('Tiempo (t)')
+        plt.ylabel('x(t)')
+        plt.grid(True)
+        plt.legend()
+        
+        if signal_choice in ["Diente de sierra", "Parabólica"]:
+            plt.xticks(
+                np.arange(min(time_points), max(time_points) + np.pi, np.pi),
+                [f'{int(x/np.pi)}π' if x != 0 else '0' 
+                 for x in np.arange(min(time_points), max(time_points) + np.pi, np.pi)]
+            )
+    else:
+        plt.stem([0], [a0], 'b', label='Componente DC')
+        harmonics = np.arange(1, num_harmonics)
+        plt.stem(harmonics, np.abs(an[1:]), 'r', label='|an| (Coseno)')
+        plt.stem(harmonics, np.abs(bn[1:]), 'g', label='|bn| (Seno)')
+        plt.title('Coeficientes de las Series de Fourier')
+        plt.xlabel('n (Número de Armónico)')
+        plt.ylabel('Magnitud del Coeficiente')
+        plt.legend()
+        plt.grid(True)
+    
+    st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
