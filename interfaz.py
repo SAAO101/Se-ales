@@ -10,7 +10,7 @@ import scipy.io.wavfile as wav
 import tempfile
 st.set_page_config(page_title="LAB3")
 
-SAMPLING_DELTA = 0.00001
+SAMPLING_DELTA = 0.0001
 NUM_SAMPLES = 2**10
 
 def calculate_fourier_coefficients(time_points, signal, num_harmonics, lower_limit, upper_limit):
@@ -405,16 +405,16 @@ def main():
                 
                 carrier_freq = st.slider(
                     "Frecuencia de portadora (Hz)",
-                    min_value=500,
-                    max_value=50000,
-                    value=20000,
+                    min_value=1000,
+                    max_value=10000,
+                    value=2000,
                     step=1000
                 )
                 cutoff_freq = st.slider(
                     "Frecuencia de corte (Hz)",
-                    min_value=200,
-                    max_value=10000,
-                    value=7000,
+                    min_value=500,
+                    max_value=5000,
+                    value=1000,
                     step=200
                 )
                 perform_am_modulation("temp_audio.wav", carrier_freq, cutoff_freq)
