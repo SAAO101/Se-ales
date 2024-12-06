@@ -10,7 +10,7 @@ import scipy.io.wavfile as wav
 import tempfile
 st.set_page_config(page_title="LAB3")
 
-SAMPLING_DELTA = 0.0001
+SAMPLING_DELTA = 0.00001
 NUM_SAMPLES = 2**10
 
 def calculate_fourier_coefficients(time_points, signal, num_harmonics, lower_limit, upper_limit):
