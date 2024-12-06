@@ -406,16 +406,16 @@ def main():
                 carrier_freq = st.slider(
                     "Frecuencia de portadora (Hz)",
                     min_value=500,
-                    max_value=5000,
-                    value=2000,
-                    step=100
+                    max_value=50000,
+                    value=20000,
+                    step=1000
                 )
                 cutoff_freq = st.slider(
                     "Frecuencia de corte (Hz)",
-                    min_value=100,
-                    max_value=1000,
-                    value=700,
-                    step=50
+                    min_value=200,
+                    max_value=10000,
+                    value=7000,
+                    step=200
                 )
                 perform_am_modulation("temp_audio.wav", carrier_freq, cutoff_freq)
                 
